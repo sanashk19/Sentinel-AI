@@ -35,12 +35,20 @@ This repo contains both the **Flask API backend** and a **static HTML dashboard*
 
 ## Screenshots
 
-Add screenshots/GIFs here after your first successful run:
+### Dashboard Interface
+![Dashboard](dashboard.jpeg)
 
-- Dashboard upload + trust score
-- Bounding-box field overlay
-- Heatmap / Grad-CAM view
-- PDF report download
+### Forensic Document Analysis
+![Document Analysis](analysis.jpeg)
+
+### Blockchain Integration
+![Blockchain](blockchain.jpeg)
+
+### Deepfake Analysis
+![Deepfake](deepfake.jpeg)
+
+### Report Generation
+![Report](report.jpeg)
 
 ---
 
