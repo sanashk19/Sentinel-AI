@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel AI - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+        }
+        
+        /* Top Navigation */
+        .top-nav {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0 2rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+        
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+        
+        .logo-text {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #0f172a;
+        }
+        
+        .nav-center {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-link {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .nav-link.active {
+            color: #1d4ed8;
+            border-bottom-color: #1d4ed8;
+        }
+        
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: #f1f5f9;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .profile-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .dashboard-layout {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 64px;
+        }
+        
+        .sidebar {
+            width: 260px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            position: fixed;
+            top: 64px;
+            left: 0;
+            bottom: 0;
+        }
+        
+        .sidebar-header {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1d4ed8;
+        }
+        
+        .sidebar-subtitle {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        
+        .verify-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.625rem 0.75rem;
+            border-radius: 8px;
+            color: #64748b;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 2rem;
+            overflow-y: auto;
+            height: calc(100vh - 64px);
+        }
+        
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-desc {
+            color: #64748b;
+            margin-bottom: 2rem;
+        }
+        
+        .upload-section {
+            background: white;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .doc-types-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .doc-type-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .doc-type-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #1d4ed8, #3b82f6);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .doc-type-card:hover {
+            border-color: #1d4ed8;
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(29, 78, 216, 0.15);
+        }
+        
+        .doc-type-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .doc-type-card.active {
+            border-color: #1d4ed8;
+            background: #eff6ff;
+        }
+        
+        .doc-type-card.active::before {
+            transform: scaleX(1);
+        }
+        
+        .doc-type-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 1.75rem;
+        }
+        
+        .doc-type-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+        
+        .doc-type-desc {
+            font-size: 0.85rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+        
+        .doc-examples {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .doc-tag {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 0.25rem 0.625rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        
+        .upload-area {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area.dragover {
+            border-color: #1d4ed8;
+            background: #eff6ff;
+        }
+        
+        .upload-area.hidden {
+            display: none;
+        }
+        
+        .upload-icon {
+            width: 64px;
+            height: 64px;
+            background: #f1f5f9;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .scan-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 2rem;
+        }
+        
+        .scan-btn:disabled {
+            background: #cbd5e1;
+            cursor: not-allowed;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #f1f5f9;
+        }
+        
+        .feature-icon-box {
+            width: 44px;
+            height: 44px;
+            background: #eff6ff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-desc {
+            font-size: 0.8rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+        
+        .submissions-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
+        .submission-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .status-verified {
+            background: #dcfce7;
+            color: #16a34a;
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .status-processing {
+            background: #fef3c7;
+            color: #d97706;
+            padding: 0.375rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .hidden { display: none !important; }
+        
+        .processing-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.8);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .processing-overlay.active { display: flex; }
+        
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <nav class="top-nav">
+        <div class="nav-left">
+            <div class="logo-icon">S</div>
+            <span class="logo-text">Sentinel: Instant Document Verification</span>
+        </div>
+        <div class="nav-center">
+            <a href="dashboard.html" class="nav-link active">Dashboard</a>
+            <a href="#" class="nav-link">Documents</a>
+            <a href="#" class="nav-link">History</a>
+            <a href="#" class="nav-link">Settings</a>
+        </div>
+        <div class="nav-right">
+            <button class="icon-btn">🔔</button>
+            <div class="profile-avatar" id="user-avatar">U</div>
+        </div>
+    </nav>
+    
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Sentinel</div>
+                <div class="sidebar-subtitle">TRUST FRAMEWORK</div>
+            </div>
+            <button class="verify-btn" onclick="document.getElementById('file-input').click()">+ Verify New Document</button>
+            <div class="nav-item active">📊 Overview</div>
+            <div class="nav-item">🛡️ Verification</div>
+            <div class="nav-item">📁 Archive</div>
+            <div class="nav-item">👤 Profile</div>
+            <div style="margin-top: auto; padding-top: 2rem;">
+                <div class="nav-item">❓ Help Center</div>
+                <div class="nav-item" onclick="logout()">🚪 Sign Out</div>
+            </div>
+        </aside>
+        
+        <main class="main-content">
+            <h1 class="page-title">Secure Upload</h1>
+            <p class="page-desc">Our framework ensures your documents are verified with industry-leading precision and privacy.</p>
+            
+            <div class="doc-types-grid">
+                <div class="doc-type-card" onclick="selectDocType('academic')">
+                    <div class="doc-type-icon">🎓</div>
+                    <h3 class="doc-type-title">Academic Documents</h3>
+                    <p class="doc-type-desc">Verify educational certificates, mark sheets, and academic credentials</p>
+                    <div class="doc-examples">
+                        <span class="doc-tag">Marksheet</span>
+                        <span class="doc-tag">Degree</span>
+                        <span class="doc-tag">Certificate</span>
+                    </div>
+                </div>
+                <div class="doc-type-card" onclick="selectDocType('idkyc')">
+                    <div class="doc-type-icon">🪪</div>
+                    <h3 class="doc-type-title">ID / KYC Documents</h3>
+                    <p class="doc-type-desc">Verify government-issued identity and address proof documents</p>
+                    <div class="doc-examples">
+                        <span class="doc-tag">Aadhaar</span>
+                        <span class="doc-tag">PAN</span>
+                        <span class="doc-tag">Passport</span>
+                    </div>
+                </div>
+                <div class="doc-type-card" onclick="selectDocType('employment')">
+                    <div class="doc-type-icon">💼</div>
+                    <h3 class="doc-type-title">Employment Documents</h3>
+                    <p class="doc-type-desc">Verify work experience letters, payslips, and employment records</p>
+                    <div class="doc-examples">
+                        <span class="doc-tag">Offer Letter</span>
+                        <span class="doc-tag">Payslip</span>
+                        <span class="doc-tag">Experience</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="border:2px dashed #cbd5e1;border-radius:12px;padding:2rem;text-align:center;background:#f8fafc;position:relative;">
+                <div style="font-size:3rem;margin-bottom:1rem;">📄</div>
+                <h3 id="upload-title" style="margin:0 0 1rem 0;color:#475569;">Click to upload document</h3>
+                <p style="color:#64748b;">Supported: PDF, JPG, PNG</p>
+                <input type="file" id="file-input" accept="image/*,.pdf" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;" onchange="handleFile(this)">
+            </div>
+            
+            <button class="scan-btn" id="scan-btn" disabled onclick="startScan()">Scan Document</button>
+            
+            <!-- Document Preview Section -->
+            <div id="document-preview-section" style="display: none; background: white; border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                    <h3 style="font-size: 1rem; font-weight: 600; color: #0f172a;">📄 Uploaded Document</h3>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <span style="font-size: 0.875rem; color: #64748b;" id="preview-filename"></span>
+                        <div style="display: flex; background: #f1f5f9; border-radius: 8px; padding: 0.25rem;">
+                            <button id="btn-original" onclick="toggleHeatmap('original')" style="padding: 0.5rem 1rem; border: none; background: #1d4ed8; color: white; border-radius: 6px; font-size: 0.8rem; font-weight: 500; cursor: pointer;">Original</button>
+                            <button id="btn-heatmap" onclick="toggleHeatmap('heatmap')" style="padding: 0.5rem 1rem; border: none; background: transparent; color: #475569; border-radius: 6px; font-size: 0.8rem; font-weight: 500; cursor: pointer;">Heatmap</button>
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1.5rem; align-items: flex-start;">
+                    <div style="flex: 1; max-width: 300px; position: relative;">
+                        <img id="documentPreview" src="" alt="Document Preview" style="width: 100%; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: block;">
+                        <img id="heatmapOverlay" src="" alt="Forensic Heatmap" style="width: 100%; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: none; position: absolute; top: 0; left: 0;">
+                        <canvas id="bboxCanvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; border-radius: 8px;"></canvas>
+                    </div>
+                    <div style="flex: 2;">
+                        <div style="background: #f8fafc; border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                            <h4 style="font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">Document Info</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.8rem;">
+                                <div><span style="color: #64748b;">Type:</span> <span id="preview-doctype" style="color: #0f172a;">-</span></div>
+                                <div><span style="color: #64748b;">Size:</span> <span id="preview-size" style="color: #0f172a;">-</span></div>
+                            </div>
+                        </div>
+                        <div id="detected-fields-section" style="display: none; background: #eff6ff; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; border: 1px solid #bfdbfe;">
+                            <h4 style="font-size: 0.875rem; font-weight: 600; color: #1d4ed8; margin-bottom: 0.5rem;">🔍 Detected Fields</h4>
+                            <div id="detected-fields-list" style="font-size: 0.8rem; color: #1e40af;"></div>
+                        </div>
+                        <div id="heatmap-preview" style="display: none;">
+                            <h4 style="font-size: 0.875rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem;">🔥 Forensic Heatmap</h4>
+                            <img id="heatmapImage" src="" alt="Forensic Heatmap" style="width: 100%; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- NEURAL ENGINE RESULTS DISPLAY -->
+            <div id="neural-results" style="display: none; background: white; border-radius: 16px; padding: 2rem; margin-bottom: 2rem; border: 1px solid #e2e8f0;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem;">
+                    <div>
+                        <h2 style="font-size: 1.25rem; font-weight: 700; color: #0f172a; margin-bottom: 0.25rem;">🧠 Neural Engine Analysis</h2>
+                        <p style="color: #64748b; font-size: 0.875rem;">Aggressive Forensic Detection Results</p>
+                    </div>
+                    <div id="status-badge" class="status-badge" style="padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; font-size: 0.875rem;">PENDING</div>
+                </div>
+                
+                <!-- Trust Score Meter -->
+                <div style="background: linear-gradient(135deg, #f8fafc, #f1f5f9); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                        <span style="font-weight: 600; color: #475569;">Trust Score</span>
+                        <span id="trust-score" style="font-size: 2rem; font-weight: 700; color: #1d4ed8;">--/100</span>
+                    </div>
+                    <div style="width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden;">
+                        <div id="trust-score-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #dc2626, #f59e0b, #16a34a); transition: width 0.5s ease;"></div>
+                    </div>
+                    <div id="trustScoreText" style="margin-top: 0.75rem; font-size: 0.875rem; font-weight: 600; color: #475569;">
+                        Score: -- — Status: PENDING
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.75rem; color: #94a3b8;">
+                        <span>0% (Fake)</span>
+                        <span>100% (Real)</span>
+                    </div>
+                </div>
+                
+                <!-- Metrics Grid -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="background: #f8fafc; border-radius: 8px; padding: 1rem; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #1d4ed8;" id="ela-score">--</div>
+                        <div style="font-size: 0.75rem; color: #64748b;">ELA Score</div>
+                    </div>
+                    <div style="background: #f8fafc; border-radius: 8px; padding: 1rem; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #1d4ed8;" id="anomaly-count">--</div>
+                        <div style="font-size: 0.75rem; color: #64748b;">Anomalies</div>
+                    </div>
+                    <div style="background: #f8fafc; border-radius: 8px; padding: 1rem; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #1d4ed8;" id="checksum-status">--</div>
+                        <div style="font-size: 0.75rem; color: #64748b;">Checksum</div>
+                    </div>
+                </div>
+                
+                <!-- Detailed Scores Grid -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border-radius: 8px; padding: 1rem; text-align: center; border: 1px solid #bfdbfe;">
+                        <div style="font-size: 1.25rem; font-weight: 700; color: #1d4ed8;" id="forensic-score">--</div>
+                        <div style="font-size: 0.7rem; color: #3b82f6; font-weight: 500;">Forensic</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #fef3c7, #fde68a); border-radius: 8px; padding: 1rem; text-align: center; border: 1px solid #fcd34d;">
+                        <div style="font-size: 1.25rem; font-weight: 700; color: #d97706;" id="ml-score-display">--</div>
+                        <div style="font-size: 0.7rem; color: #f59e0b; font-weight: 500;">ML Score</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); border-radius: 8px; padding: 1rem; text-align: center; border: 1px solid #86efac;">
+                        <div style="font-size: 1.25rem; font-weight: 700; color: #16a34a;" id="validation-score-display">--</div>
+                        <div style="font-size: 0.7rem; color: #22c55e; font-weight: 500;">Validation</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #fae8ff, #f5d0fe); border-radius: 8px; padding: 1rem; text-align: center; border: 1px solid #e879f9;">
+                        <div style="font-size: 1.25rem; font-weight: 700; color: #a855f7;" id="pretrained-score-display">--</div>
+                        <div style="font-size: 0.7rem; color: #c026d3; font-weight: 500;">Pretrained</div>
+                    </div>
+                </div>
+                
+                <!-- Anomaly List -->
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 1rem; font-weight: 600; color: #0f172a; margin-bottom: 1rem;">🚨 Detected Anomalies</h3>
+                    <div id="anomaly-list">
+                        <!-- Anomalies will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Forensic Heatmap Visualization (Results) -->
+                <div id="heatmap-results-section" style="display: none; margin-bottom: 1.5rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem;">
+                    <h3 style="font-size: 1rem; font-weight: 600; color: #0f172a; margin-bottom: 1rem;">🔥 Forgery Heatmap</h3>
+                    <img id="heatmapImageResults" src="" alt="Forgery Heatmap" style="width: 100%; border-radius: 8px; border: 1px solid #e2e8f0;">
+                </div>
+
+                <!-- Gemini AI Forensic Explanation -->
+                <div id="ai-explanation-section" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 1px solid #bfdbfe; border-radius: 12px; padding: 1.5rem;">
+                    <h3 style="font-size: 1rem; font-weight: 600; color: #1d4ed8; margin-bottom: 1rem;">🤖 AI Forensic Explanation</h3>
+                    <div id="aiExplanation" style="white-space: pre-wrap; font-size: 0.9rem; color: #1e40af; line-height: 1.6;">No AI explanation available.</div>
+                </div>
+
+                <!-- Summary Findings -->
+                <div id="summary-section" style="margin-bottom: 1.5rem; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem;">
+                    <h3 style="font-size: 1rem; font-weight: 600; color: #0f172a; margin-bottom: 1rem;">🧾 Summary Findings</h3>
+                    <div id="analysisSummary" style="white-space: pre-wrap; font-size: 0.9rem; color: #334155; line-height: 1.6;">Summary not available.</div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 1rem;">
+                    <button onclick="viewForensicReport()" style="flex: 1; background: #1d4ed8; color: white; border: none; padding: 0.75rem; border-radius: 8px; font-weight: 600; cursor: pointer;">View Report</button>
+                    <button onclick="downloadPDFReport()" style="flex: 1; background: #64748b; color: white; border: none; padding: 0.75rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Download PDF</button>
+                    <button id="downloadReport" style="flex: 1; background: #2c7be5; color: white; border: none; padding: 0.75rem; border-radius: 8px; font-weight: 600; cursor: pointer;">Download Forensic Report</button>
+                </div>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon-box">🔒</div>
+                    <h4 class="feature-title">End-to-End Encryption</h4>
+                    <p class="feature-desc">Your data is secured before it even leaves your device.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-box">⚡</div>
+                    <h4 class="feature-title">Real-time Analysis</h4>
+                    <p class="feature-desc">Get verification results in under 30 seconds for most documents.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-box">✓</div>
+                    <h4 class="feature-title">Official Validation</h4>
+                    <p class="feature-desc">Direct cross-referencing with national registries.</p>
+                </div>
+            </div>
+            
+            <div class="submissions-section">
+                <div class="section-header">
+                    <h3>Recent Submissions</h3>
+                    <a href="#" style="color: #1d4ed8; font-size: 0.85rem;">View History</a>
+                </div>
+                <div class="submission-item">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">📄</div>
+                        <div>
+                            <h4 style="font-size: 0.9rem; font-weight: 600;">Aadhaar_Card_Main.pdf</h4>
+                            <p style="font-size: 0.75rem; color: #94a3b8;">Today at 10:45 AM</p>
+                        </div>
+                    </div>
+                    <span class="status-verified">VERIFIED</span>
+                </div>
+                <div class="submission-item">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center;">🖼️</div>
+                        <div>
+                            <h4 style="font-size: 0.9rem; font-weight: 600;">PAN_Verification_New.jpg</h4>
+                            <p style="font-size: 0.75rem; color: #94a3b8;">Yesterday at 3:20 PM</p>
+                        </div>
+                    </div>
+                    <span class="status-processing">PROCESSING</span>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <div class="processing-overlay" id="processing-overlay">
+        <div class="spinner"></div>
+        <p style="color: white;">Analyzing document...</p>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        const user = localStorage.getItem('user') || 'User';
+        document.getElementById('user-avatar').textContent = user.charAt(0).toUpperCase();
+        
+        let selectedDocType = null;
+        const docTypeConfig = {
+            academic: { icon: '🎓', title: 'Upload Academic Document', name: 'Academic' },
+            idkyc: { icon: '🪪', title: 'Upload ID/KYC Document', name: 'ID/KYC' },
+            employment: { icon: '💼', title: 'Upload Employment Document', name: 'Employment' }
+        };
+        
+        function selectDocType(type) {
+            selectedDocType = type;
+            document.querySelectorAll('.doc-type-card').forEach(card => card.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            const uploadArea = document.getElementById('upload-area');
+            uploadArea.classList.remove('hidden');
+            const config = docTypeConfig[type];
+            document.getElementById('selected-type-icon').textContent = config.icon;
+            document.getElementById('upload-title').textContent = config.title;
+            localStorage.setItem('selectedDocType', type);
+            if (typeof speak === 'function') speak(config.name + ' document type selected. Please upload your file.');
+        }
+        
+        function handleFile(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    localStorage.setItem('currentFile', e.target.result);
+                    localStorage.setItem('currentFileName', file.name);
+                    document.getElementById('scan-btn').disabled = false;
+                    document.getElementById('upload-title').innerHTML = '✓ ' + file.name;
+                    document.getElementById('upload-title').style.color = '#16a34a';
+                    
+                    // Show document preview
+                    document.getElementById('document-preview-section').style.display = 'block';
+                    document.getElementById('documentPreview').src = e.target.result;
+                    document.getElementById('preview-filename').textContent = file.name;
+                    document.getElementById('preview-size').textContent = (file.size / 1024).toFixed(1) + ' KB';
+                    document.getElementById('preview-doctype').textContent = selectedDocType ? docTypeConfig[selectedDocType].name : 'Auto-detect';
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Drag and drop
+        const uploadArea = document.getElementById('upload-area');
+        const fileInput = document.getElementById('file-input');
+        if (uploadArea) {
+            uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+            uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                if (e.dataTransfer.files[0]) {
+                    const dt = new DataTransfer();
+                    dt.items.add(e.dataTransfer.files[0]);
+                    fileInput.files = dt.files;
+                    handleFile(fileInput);
+                }
+            });
+        }
+        
+        function startScan() {
+            document.getElementById('processing-overlay').classList.add('active');
+            if (typeof speak === 'function') speak('Initiating neural engine forensic analysis');
+            
+            // Get the uploaded image from localStorage
+            const imageData = localStorage.getItem('currentFile');
+            
+            if (!imageData) {
+                alert('Please upload a document first');
+                document.getElementById('processing-overlay').classList.remove('active');
+                return;
+            }
+            
+            // Call the real Neural Engine API
+            fetch('http://localhost:5001/api/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image_data: imageData })
+            })
+            .then(response => response.json())
+            .then(results => {
+                document.getElementById('processing-overlay').classList.remove('active');
+                if (results.error) {
+                    alert('Analysis failed: ' + results.error);
+                } else {
+                    displayNeuralResults(results);
+                }
+            })
+            .catch(error => {
+                document.getElementById('processing-overlay').classList.remove('active');
+                console.error('API Error:', error);
+                alert('API Error: ' + error.message + '\nMake sure the Python API server is running on port 5001');
+            });
+        }
+        
+        function getMockResults() {
+            return {
+                trust_score: 0,
+                status: 'SUSPICIOUS',
+                ela_score: 35.2,
+                anomaly_count: 3,
+                checksum_valid: false,
+                anomalies: [
+                    {
+                        type: 'AGGRESSIVE: RGB-Only Pixels - Digital Overlay Detected',
+                        confidence: 0.564,
+                        description: 'Pure black: 2.5%, Identical channels: 18% - suggests digital overlay',
+                        severity: 'HIGH'
+                    },
+                    {
+                        type: 'AGGRESSIVE: Sub-pixel Mismatch Detected',
+                        confidence: 1.0,
+                        description: 'Character spacing variance: 1.2% - exceeds 1% threshold',
+                        severity: 'CRITICAL'
+                    },
+                    {
+                        type: 'AGGRESSIVE: Font Kerning Mismatch > 2%',
+                        confidence: 1.0,
+                        description: 'Font kerning variance: 4.2% - exceeds 2% threshold, indicates font library mismatch',
+                        severity: 'CRITICAL'
+                    }
+                ]
+            };
+        }
+        
+        function displayNeuralResults(results) {
+            // Show results container
+            document.getElementById('neural-results').style.display = 'block';
+            
+            // Update Trust Score
+            const trustScoreEl = document.getElementById('trust-score');
+            trustScoreEl.textContent = results.trust_score + '/100';
+            trustScoreEl.style.color = results.trust_score < 60 ? '#dc2626' : results.trust_score < 80 ? '#f59e0b' : '#16a34a';
+            
+            // Update Trust Score Bar
+            const score = results.trust_score || 0;
+            const bar = document.getElementById('trust-score-bar');
+            bar.style.width = score + '%';
+
+            // Heatmap gating: show only when suspicious (trust_score <= 50)
+            const allowHeatmap = score <= 50;
+            const btnOriginal = document.getElementById('btn-original');
+            const btnHeatmap = document.getElementById('btn-heatmap');
+            const heatmapOverlay = document.getElementById('heatmapOverlay');
+            const heatmapPreview = document.getElementById('heatmap-preview');
+            const heatmapResultsSection = document.getElementById('heatmap-results-section');
+
+            if (btnHeatmap) {
+                btnHeatmap.disabled = !allowHeatmap;
+                btnHeatmap.style.opacity = allowHeatmap ? '1' : '0.5';
+                btnHeatmap.style.cursor = allowHeatmap ? 'pointer' : 'not-allowed';
+                btnHeatmap.title = allowHeatmap ? '' : 'Heatmap disabled for trusted documents';
+            }
+            if (btnOriginal) {
+                btnOriginal.disabled = false;
+                btnOriginal.style.opacity = '1';
+                btnOriginal.style.cursor = 'pointer';
+            }
+
+            // Always default to original view after each scan
+            if (typeof toggleHeatmap === 'function') {
+                toggleHeatmap('original');
+            }
+
+            // If heatmap is not allowed, hide all heatmap UI and overlay
+            if (!allowHeatmap) {
+                if (heatmapOverlay) heatmapOverlay.style.display = 'none';
+                if (heatmapPreview) heatmapPreview.style.display = 'none';
+                if (heatmapResultsSection) heatmapResultsSection.style.display = 'none';
+            }
+
+            let statusLabel = '';
+            let color = '';
+            if (score > 70) {
+                statusLabel = 'AUTHENTIC';
+                color = 'green';
+            } else if (score >= 40 && score <= 70) {
+                statusLabel = 'REVIEW';
+                color = 'orange';
+            } else {
+                statusLabel = 'SUSPICIOUS';
+                color = 'red';
+            }
+            bar.style.backgroundColor = color;
+            const trustText = document.getElementById('trustScoreText');
+            if (trustText) {
+                trustText.innerText = 'Score: ' + score + ' — Status: ' + statusLabel;
+            }
+            
+            // Update Status Badge
+            const statusBadge = document.getElementById('status-badge');
+            statusBadge.textContent = results.status;
+            statusBadge.style.background = results.status === 'AUTHENTIC' ? '#dcfce7' : results.status === 'NEEDS REVIEW' ? '#fef3c7' : '#fee2e2';
+            statusBadge.style.color = results.status === 'AUTHENTIC' ? '#16a34a' : results.status === 'NEEDS REVIEW' ? '#d97706' : '#dc2626';
+            
+            // Update Metrics
+            document.getElementById('ela-score').textContent = results.ela_score ? results.ela_score.toFixed(1) : '--';
+            document.getElementById('anomaly-count').textContent = results.anomaly_count || results.anomalies?.length || 0;
+            document.getElementById('checksum-status').textContent = results.checksum_valid ? '✓' : '✗';
+            document.getElementById('checksum-status').style.color = results.checksum_valid ? '#16a34a' : '#dc2626';
+            
+            // Update Detailed Scores
+            if (results.forensic_score !== undefined) {
+                document.getElementById('forensic-score').textContent = results.forensic_score.toFixed(0);
+            }
+            if (results.ml_score !== undefined) {
+                document.getElementById('ml-score-display').textContent = results.ml_score.toFixed(0);
+            }
+            if (results.validation_score !== undefined) {
+                document.getElementById('validation-score-display').textContent = results.validation_score.toFixed(0);
+            }
+            if (results.pretrained_score !== undefined) {
+                document.getElementById('pretrained-score-display').textContent = results.pretrained_score.toFixed(0);
+            }
+            
+            // Update document type in preview
+            if (results.document_type) {
+                document.getElementById('preview-doctype').textContent = results.document_type;
+            }
+            
+            // Show heatmap only if available AND allowed by trust score
+            if (results.heatmap && allowHeatmap) {
+                const heatmapImage = document.getElementById('heatmapImage');
+                if (heatmapPreview) heatmapPreview.style.display = 'block';
+                
+                // Normalize path - handle both forward and backslashes
+                let heatmapPath = results.heatmap;
+                if (heatmapPath.includes('\\')) {
+                    heatmapPath = heatmapPath.replace(/\\/g, '/');
+                }
+                // Remove leading slash if present to avoid double slashes
+                if (heatmapPath.startsWith('/')) {
+                    heatmapPath = heatmapPath.substring(1);
+                }
+                
+                const cacheBust = 't=' + Date.now();
+                heatmapImage.src = 'http://localhost:5001/' + heatmapPath + (heatmapPath.includes('?') ? '&' : '?') + cacheBust;
+                console.log('[Dashboard] Heatmap loaded:', heatmapImage.src);
+
+                // Set overlay image for the toggle buttons
+                const heatmapOverlay = document.getElementById('heatmapOverlay');
+                if (heatmapOverlay) {
+                    heatmapOverlay.src = 'http://localhost:5001/' + heatmapPath + (heatmapPath.includes('?') ? '&' : '?') + cacheBust;
+                }
+
+                const heatmapImageResults = document.getElementById('heatmapImageResults');
+                if (heatmapResultsSection && heatmapImageResults) {
+                    heatmapResultsSection.style.display = 'block';
+                    heatmapImageResults.src = 'http://localhost:5001/' + heatmapPath + (heatmapPath.includes('?') ? '&' : '?') + cacheBust;
+                }
+            } else {
+                // Hide heatmap UI if not allowed or not available
+                if (heatmapPreview) heatmapPreview.style.display = 'none';
+                if (heatmapResultsSection) heatmapResultsSection.style.display = 'none';
+            }
+
+            // Populate Gemini AI explanation
+            const aiEl = document.getElementById('aiExplanation');
+            if (aiEl) {
+                if (results && results.ai_reasoning) {
+                    aiEl.innerText = results.ai_reasoning;
+                } else {
+                    aiEl.innerText = 'No AI explanation available.';
+                }
+            }
+
+            // Populate summary findings
+            const summaryEl = document.getElementById('analysisSummary');
+            if (summaryEl) {
+                if (results && results.summary) {
+                    summaryEl.innerText = results.summary;
+                } else {
+                    summaryEl.innerText = 'Summary not available.';
+                }
+            }
+            
+            // Draw bounding boxes for detected fields
+            if (results.detected_fields && results.detected_fields.length > 0) {
+                drawBoundingBoxes(results.detected_fields);
+                
+                // Show detected fields list
+                const fieldsSection = document.getElementById('detected-fields-section');
+                const fieldsList = document.getElementById('detected-fields-list');
+                fieldsSection.style.display = 'block';
+                fieldsList.innerHTML = results.detected_fields.map(f => 
+                    `<span style="display: inline-block; background: #dbeafe; padding: 0.25rem 0.5rem; border-radius: 4px; margin: 0.25rem; font-weight: 500;">${f.label} (${(f.confidence * 100).toFixed(0)}%)</span>`
+                ).join('');
+            }
+            
+            // Update Anomaly List
+            const anomalyList = document.getElementById('anomaly-list');
+            const anomalies = results.anomalies || [];
+            anomalyList.innerHTML = anomalies.map(anomaly => `
+                <div style="border-left: 4px solid ${anomaly.severity === 'CRITICAL' ? '#dc2626' : '#f59e0b'}; background: ${anomaly.severity === 'CRITICAL' ? '#fef2f2' : '#fffbeb'}; padding: 1rem; margin-bottom: 0.75rem; border-radius: 8px;">
+                    <strong style="color: ${anomaly.severity === 'CRITICAL' ? '#991b1b' : '#92400e'};">${anomaly.type}</strong>
+                    <p style="margin: 0.5rem 0 0 0; color: #7f1d1d; font-size: 0.9rem;">${anomaly.description || ''}</p>
+                    <div style="margin-top: 0.5rem; font-family: monospace; font-size: 0.8rem; color: #9ca3af;">
+                        Confidence: ${((anomaly.confidence || 0) * 100).toFixed(1)}% | Severity: ${anomaly.severity || 'HIGH'}
+                    </div>
+                </div>
+            `).join('');
+            
+            // Add AI Reasoning section if available
+            if (results.ai_reasoning) {
+                anomalyList.innerHTML += `
+                    <div style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border: 1px solid #bfdbfe; border-radius: 12px; padding: 1.5rem; margin-top: 1rem;">
+                        <h4 style="font-size: 1rem; font-weight: 600; color: #1d4ed8; margin-bottom: 1rem;">🤖 AI Analysis (Gemini)</h4>
+                        <div style="white-space: pre-wrap; font-size: 0.9rem; color: #1e40af; line-height: 1.6;">${results.ai_reasoning}</div>
+                    </div>
+                `;
+            }
+            
+            // Add Rule-based Reasoning section if available
+            if (results.reasoning && results.reasoning.length > 0) {
+                anomalyList.innerHTML += `
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; margin-top: 1rem;">
+                        <h4 style="font-size: 1rem; font-weight: 600; color: #475569; margin-bottom: 1rem;">📋 Key Findings</h4>
+                        <ul style="margin: 0; padding-left: 1.5rem; font-size: 0.9rem; color: #334155;">
+                            ${results.reasoning.map(r => `<li style="margin-bottom: 0.5rem;">${r}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            // Store results for report page
+            const minimalResults = {
+                trust_score: results.trust_score || 0,
+                ml_score: results.ml_score || 0,
+                forensic_score: results.forensic_score || 0,
+                validation_score: results.validation_score || 0,
+                document_type: results.document_type || 'UNKNOWN',
+                anomalies: (results.anomalies || []).map(a => ({
+                    type: a.type,
+                    severity: a.severity,
+                    confidence: a.confidence
+                })),
+                reasoning: results.reasoning || [],
+                ai_reasoning: results.ai_reasoning || '',
+                status: results.status || 'UNKNOWN',
+                ela_score: results.ela_score,
+                anomaly_count: results.anomaly_count,
+                checksum_valid: results.checksum_valid
+            };
+            try {
+                localStorage.setItem('neuralResults', JSON.stringify(minimalResults));
+            } catch (e) {
+                console.warn('Skipping neuralResults storage due to quota limits:', e);
+            }
+            
+            // Scroll to results
+            document.getElementById('neural-results').scrollIntoView({ behavior: 'smooth' });
+            
+            // Speak results
+            if (typeof speak === 'function') {
+                const criticalCount = anomalies.filter(a => a.severity === 'CRITICAL').length;
+                speak(`Neural engine analysis complete. ${criticalCount} critical anomalies detected. Trust score: ${results.trust_score} percent. Status: ${results.status}`);
+            }
+        }
+        
+        // Draw bounding boxes on canvas overlay
+        function drawBoundingBoxes(detectedFields) {
+            const img = document.getElementById('documentPreview');
+            const canvas = document.getElementById('bboxCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Wait for image to load if not already
+            if (!img.complete || !img.naturalWidth) {
+                img.onload = () => drawBoundingBoxes(detectedFields);
+                return;
+            }
+            
+            // Set canvas dimensions to match image display size
+            const displayWidth = img.clientWidth;
+            const displayHeight = img.clientHeight;
+            canvas.width = displayWidth;
+            canvas.height = displayHeight;
+            
+            // Calculate scale factor (original image size vs display size)
+            const scaleX = displayWidth / img.naturalWidth;
+            const scaleY = displayHeight / img.naturalHeight;
+            
+            // Clear previous drawings
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Define colors for different field types
+            const colors = {
+                'NAME': '#22c55e',
+                'DOB': '#3b82f6', 
+                'DATE_OF_BIRTH': '#3b82f6',
+                'PAN_NUMBER': '#ef4444',
+                'AADHAR_NUMBER': '#ef4444',
+                'GENDER': '#a855f7',
+                'FATHER': '#f59e0b',
+                'FATHER_NAME': '#f59e0b',
+                'default': '#1d4ed8'
+            };
+            
+            // Draw each bounding box
+            detectedFields.forEach(field => {
+                const [x, y, w, h] = field.bbox;
+                
+                // Scale coordinates to display size
+                const scaledX = x * scaleX;
+                const scaledY = y * scaleY;
+                const scaledW = w * scaleX;
+                const scaledH = h * scaleY;
+                
+                // Get color for this field type
+                const color = colors[field.label.toUpperCase()] || colors['default'];
+                
+                // Draw bounding box
+                ctx.strokeStyle = color;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(scaledX, scaledY, scaledW, scaledH);
+                
+                // Draw semi-transparent fill
+                ctx.fillStyle = color + '20';  // 20 = ~12% opacity
+                ctx.fillRect(scaledX, scaledY, scaledW, scaledH);
+                
+                // Draw label background
+                ctx.font = 'bold 11px Inter, sans-serif';
+                const labelText = field.label;
+                const textWidth = ctx.measureText(labelText).width;
+                const padding = 4;
+                
+                ctx.fillStyle = color;
+                ctx.fillRect(scaledX, scaledY - 18, textWidth + padding * 2, 16);
+                
+                // Draw label text
+                ctx.fillStyle = 'white';
+                ctx.fillText(labelText, scaledX + padding, scaledY - 6);
+                
+                // Draw confidence badge
+                const confText = `${(field.confidence * 100).toFixed(0)}%`;
+                const confWidth = ctx.measureText(confText).width;
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(scaledX + scaledW - confWidth - padding - 2, scaledY + scaledH - 16, confWidth + padding, 14);
+                ctx.fillStyle = 'white';
+                ctx.font = '10px Inter, sans-serif';
+                ctx.fillText(confText, scaledX + scaledW - confWidth - padding, scaledY + scaledH - 6);
+            });
+        }
+
+        // Download forensic report (server-generated PDF)
+        const downloadReportBtn = document.getElementById('downloadReport');
+        if (downloadReportBtn) {
+            downloadReportBtn.addEventListener('click', function() {
+                window.open('http://localhost:5001/download_report', '_blank');
+            });
+        }
+        
+        // Toggle heatmap/original view
+        function toggleHeatmap(view) {
+            const originalImg = document.getElementById('documentPreview');
+            const heatmapImg = document.getElementById('heatmapOverlay');
+            const btnOriginal = document.getElementById('btn-original');
+            const btnHeatmap = document.getElementById('btn-heatmap');
+            
+            if (view === 'heatmap') {
+                originalImg.style.display = 'none';
+                heatmapImg.style.display = 'block';
+                btnHeatmap.style.background = '#dc2626';
+                btnHeatmap.style.color = 'white';
+                btnOriginal.style.background = 'transparent';
+                btnOriginal.style.color = '#475569';
+            } else {
+                originalImg.style.display = 'block';
+                heatmapImg.style.display = 'none';
+                btnOriginal.style.background = '#1d4ed8';
+                btnOriginal.style.color = 'white';
+                btnHeatmap.style.background = 'transparent';
+                btnHeatmap.style.color = '#475569';
+            }
+        }
+        
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+        
+        function downloadPDFReport() {
+            // Get stored neural results
+            const results = JSON.parse(localStorage.getItem('neuralResults') || '{}');
+            
+            if (results.pdf_report) {
+                // Create blob from base64 PDF data
+                const binaryString = atob(results.pdf_report);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                const blob = new Blob([bytes], { type: 'application/pdf' });
+                
+                // Create download link
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'forensic_report.pdf';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } else {
+                alert('PDF report not available. Please run analysis first.');
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
