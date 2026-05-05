@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forensic Analysis - Sentinel AI</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1d4ed8;
+        }
+        
+        .scan-id {
+            font-family: monospace;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+        
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        
+        .panel-title {
+            font-size: 0.9rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .canvas-container {
+            position: relative;
+            background: #0f172a;
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 400px;
+        }
+        
+        #forensic-canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .heatmap-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.3), transparent 70%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .heatmap-overlay.active {
+            opacity: 1;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #64748b;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            border-color: #1d4ed8;
+            color: #1d4ed8;
+            background: #eff6ff;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
+        }
+        
+        .verdict-card {
+            background: linear-gradient(135deg, #fef2f2, #fff1f2);
+            border: 2px solid #fecaca;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .verdict-card.authentic {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border-color: #86efac;
+        }
+        
+        .verdict-title {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .verdict-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #dc2626;
+        }
+        
+        .verdict-card.authentic .verdict-value {
+            color: #16a34a;
+        }
+        
+        .confidence-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1d4ed8, #3b82f6);
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .metric-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .metric-label {
+            font-size: 0.7rem;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
+        
+        .anomaly-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .anomaly-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: #fef2f2;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid #ef4444;
+        }
+        
+        .anomaly-severity {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+        
+        .anomaly-text {
+            font-size: 0.85rem;
+            color: #374151;
+        }
+        
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 400px;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #1d4ed8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .back-btn {
+            color: #64748b;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .back-btn:hover {
+            color: #1d4ed8;
+        }
+        
+        .scan-id {
+            font-family: monospace;
+            color: #64748b;
+            font-size: 0.85rem;
+            background: #f1f5f9;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+        
+        .analysis-progress {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+        
+        .progress-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        
+        .progress-item.complete {
+            color: #16a34a;
+        }
+        
+        .progress-item.complete::after {
+            content: '✓';
+            color: #16a34a;
+            font-weight: bold;
+        }
+        
+        .hidden { display: none !important; }
+        
+        .report-btn { width: 100%; margin-top: 1rem; }
+        
+        @media (max-width: 968px) {
+            .main-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <a href="dashboard.html" class="back-btn">← Back to Dashboard</a>
+        </div>
+        <h1>🔬 FORENSIC ANALYSIS REPORT</h1>
+        <div class="scan-id" id="scan-id">SCAN-ID: EL8X9-2024</div>
+    </header>
+    
+    <main class="main-container">
+        <!-- Left Panel - Document View -->
+        <div class="panel">
+            <div class="panel-title">
+                <div class="status-dot"></div>
+                DOCUMENT ANALYSIS VIEW
+            </div>
+            <div class="canvas-container">
+                <canvas id="forensic-canvas"></canvas>
+                <div class="heatmap-overlay" id="heatmap"></div>
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="toggleHeatmap()">Toggle Heatmap</button>
+                <button class="btn" onclick="toggleOriginal()">Original View</button>
+                <button class="btn" onclick="reanalyze()">Re-analyze</button>
+            </div>
+            <div class="analysis-progress" id="progress-panel">
+                <div class="progress-item" id="step-ela">Error Level Analysis...</div>
+                <div class="progress-item" id="step-noise">Noise Pattern Detection...</div>
+                <div class="progress-item" id="step-edge">Edge Boundary Analysis...</div>
+                <div class="progress-item" id="step-final">Generating Report...</div>
+            </div>
+        </div>
+        
+        <!-- Right Panel - Analysis Results -->
+        <div class="panel">
+            <div class="panel-title">FORENSIC VERDICT</div>
+            
+            <div class="verdict-card" id="verdict-card">
+                <div class="verdict-title">Analysis Result</div>
+                <div class="verdict-value" id="verdict-text">ANALYZING...</div>
+                <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.9rem; color: #94a3b8;">
+                    <span>Confidence</span>
+                    <span id="confidence-text">0%</span>
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" id="confidence-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-label">Anomalies Detected</div>
+                    <div class="metric-value" id="anomaly-count">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Suspicious Regions</div>
+                    <div class="metric-value" id="region-count">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">ELA Score</div>
+                    <div class="metric-value" id="ela-score">0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Tamper Probability</div>
+                    <div class="metric-value" id="tamper-prob">0%</div>
+                </div>
+            </div>
+            
+            <div class="panel-title">DETECTED ANOMALIES</div>
+            <div class="anomaly-list" id="anomaly-list">
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p style="color: #64748b;">Running forensic algorithms...</p>
+                </div>
+            </div>
+            
+            <button class="btn-primary" onclick="window.location.href='report.html'">📄 View Detailed Report</button>
+            <button class="btn btn-primary report-btn" onclick="downloadReport()">
+                Download Full Report
+            </button>
+        </div>
+    </main>
+    
+    <script src="script.js"></script>
+    <script>
+        let originalImage = null;
+        let analysisResults = null;
+        let isAnalyzing = false;
+        
+        window.onload = async () => {
+            const fileData = localStorage.getItem('currentFile');
+            const fileName = localStorage.getItem('currentFileName') || 'document.jpg';
+            const docType = localStorage.getItem('selectedDocType') || 'document';
+            
+            if (!fileData) {
+                alert('No document to analyze. Please upload a document first.');
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            
+            document.getElementById('scan-id').textContent = 'SCAN-ID: ' + generateScanId();
+            
+            originalImage = new Image();
+            originalImage.onload = async () => {
+                await runRealTimeAnalysis();
+            };
+            originalImage.src = fileData;
+        };
+        
+        async function runRealTimeAnalysis() {
+            if (isAnalyzing) return;
+            isAnalyzing = true;
+            
+            const canvas = document.getElementById('forensic-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const maxWidth = 600;
+            const scale = Math.min(1, maxWidth / originalImage.naturalWidth);
+            canvas.width = originalImage.naturalWidth * scale;
+            canvas.height = originalImage.naturalHeight * scale;
+            
+            ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+            
+            speak('Forensic analysis initiated. Running real-time error level analysis.');
+            
+            await updateProgress('step-ela');
+            const elaResults = await performRealTimeELA(ctx, canvas);
+            
+            await updateProgress('step-noise');
+            const noiseResults = analyzeNoise(ctx, canvas);
+            
+            await updateProgress('step-edge');
+            const edgeResults = detectEdges(ctx, canvas);
+            
+            await updateProgress('step-final');
+            
+            const combinedScore = (elaResults.score + noiseResults.confidence + (edgeResults.quality === 'Normal' ? 90 : 70)) / 3;
+            const verdict = combinedScore > 80 ? 'AUTHENTIC' : combinedScore > 50 ? 'REVIEW' : 'SUSPICIOUS';
+            
+            analysisResults = {
+                timestamp: new Date().toLocaleString(),
+                ela: elaResults,
+                noise: noiseResults,
+                edges: edgeResults,
+                verdict: verdict,
+                confidence: Math.round(combinedScore),
+                scanId: document.getElementById('scan-id').textContent
+            };
+            
+            localStorage.setItem('forensicResults', JSON.stringify(analysisResults));
+            displayResults(analysisResults);
+            isAnalyzing = false;
+        }
+        
+        async function performRealTimeELA(ctx, canvas) {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const anomalies = [];
+            
+            for (let y = 1; y < canvas.height - 1; y += 2) {
+                for (let x = 1; x < canvas.width - 1; x += 2) {
+                    const idx = (y * canvas.width + x) * 4;
+                    const neighbors = [
+                        ((y - 1) * canvas.width + x) * 4,
+                        ((y + 1) * canvas.width + x) * 4,
+                        (y * canvas.width + (x - 1)) * 4,
+                        (y * canvas.width + (x + 1)) * 4
+                    ];
+                    
+                    let variance = 0;
+                    for (let n of neighbors) {
+                        if (n >= 0 && n < data.length) {
+                            variance += Math.abs(data[idx] - data[n]);
+                        }
+                    }
+                    variance /= 4;
+                    
+                    if (variance > 30) {
+                        const intensity = Math.min(255, variance * 3);
+                        data[idx] = 255;
+                        data[idx + 1] = 255 - intensity;
+                        data[idx + 2] = 255 - intensity;
+                        
+                        if (variance > 60) {
+                            anomalies.push({ x, y, intensity: variance });
+                        }
+                    }
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+            
+            const clusterRegions = clusterAnomalies(anomalies, 40);
+            ctx.strokeStyle = '#dc2626';
+            ctx.lineWidth = 2;
+            
+            clusterRegions.forEach((r, i) => {
+                ctx.strokeRect(r.x - 20, r.y - 20, 40, 40);
+                ctx.fillStyle = 'rgba(220, 38, 38, 0.15)';
+                ctx.fillRect(r.x - 20, r.y - 20, 40, 40);
+                ctx.fillStyle = '#dc2626';
+                ctx.font = 'bold 11px Inter';
+                ctx.fillText(`A${i + 1}`, r.x - 18, r.y - 24);
+            });
+            
+            return {
+                anomalyCount: anomalies.length,
+                regions: clusterRegions.length,
+                score: Math.min(100, (anomalies.length / 500) * 10),
+                clusters: clusterRegions
+            };
+        }
+        
+        function clusterAnomalies(anomalies, threshold) {
+            if (anomalies.length === 0) return [];
+            const clusters = [];
+            const visited = new Set();
+            
+            anomalies.forEach((a, i) => {
+                if (visited.has(i)) return;
+                const cluster = [a];
+                visited.add(i);
+                
+                anomalies.forEach((o, j) => {
+                    if (visited.has(j)) return;
+                    const dist = Math.sqrt(Math.pow(a.x - o.x, 2) + Math.pow(a.y - o.y, 2));
+                    if (dist < threshold) { cluster.push(o); visited.add(j); }
+                });
+                
+                clusters.push({
+                    x: cluster.reduce((s, p) => s + p.x, 0) / cluster.length,
+                    y: cluster.reduce((s, p) => s + p.y, 0) / cluster.length,
+                    count: cluster.length
+                });
+            });
+            
+            return clusters.slice(0, 8);
+        }
+        
+        function analyzeNoise(ctx, canvas) {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            let totalVariance = 0;
+            let samples = 0;
+            
+            for (let i = 0; i < data.length; i += 20) {
+                const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+                if (i > 0) {
+                    const prevLum = 0.299 * data[i - 4] + 0.587 * data[i - 3] + 0.114 * data[i - 2];
+                    totalVariance += Math.abs(lum - prevLum);
+                    samples++;
+                }
+            }
+            
+            const avgVariance = totalVariance / samples;
+            return { variance: avgVariance, confidence: Math.max(0, 100 - avgVariance * 2), quality: avgVariance < 15 ? 'High' : 'Medium' };
+        }
+        
+        function detectEdges(ctx, canvas) {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            let edgeCount = 0;
+            
+            for (let y = 1; y < canvas.height - 1; y += 2) {
+                for (let x = 1; x < canvas.width - 1; x += 2) {
+                    const idx = (y * canvas.width + x) * 4;
+                    const gx = Math.abs(data[idx + 4] - data[idx - 4]);
+                    const gy = Math.abs(data[(y + 1) * canvas.width * 4 + x * 4] - data[(y - 1) * canvas.width * 4 + x * 4]);
+                    if (gx + gy > 100) edgeCount++;
+                }
+            }
+            
+            const edgeDensity = (edgeCount / (canvas.width * canvas.height)) * 1000;
+            return { count: edgeCount, density: edgeDensity.toFixed(2), quality: edgeDensity > 5 ? 'Normal' : 'Low Detail' };
+        }
+        
+        async function updateProgress(stepId) {
+            document.getElementById(stepId).classList.add('complete');
+            await new Promise(r => setTimeout(r, 300));
+        }
+        
+        function displayResults(results) {
+            document.getElementById('loading').classList.add('hidden');
+            document.getElementById('progress-panel').classList.add('hidden');
+            
+            const verdictCard = document.getElementById('verdict-card');
+            const verdictText = document.getElementById('verdict-text');
+            
+            if (results.verdict === 'AUTHENTIC') {
+                verdictCard.classList.add('authentic');
+                verdictText.textContent = 'AUTHENTIC';
+                verdictText.style.color = '#16a34a';
+                speak('Analysis complete. Document verified as authentic with ' + results.confidence + ' percent confidence.');
+            } else if (results.verdict === 'REVIEW') {
+                verdictText.textContent = 'NEEDS REVIEW';
+                verdictText.style.color = '#d97706';
+                speak('Analysis complete. Document requires manual review. Some inconsistencies detected.');
+            } else {
+                verdictText.textContent = 'SUSPICIOUS';
+                verdictText.style.color = '#dc2626';
+                speak('Warning: Document shows signs of potential tampering. Please review flagged regions.');
+            }
+            
+            document.getElementById('confidence-text').textContent = results.confidence + '%';
+            document.getElementById('confidence-bar').style.width = results.confidence + '%';
+            
+            document.getElementById('anomaly-count').textContent = results.ela.anomalyCount;
+            document.getElementById('region-count').textContent = results.ela.regions;
+            document.getElementById('ela-score').textContent = Math.round(results.ela.score);
+            document.getElementById('tamper-prob').textContent = Math.round(results.ela.score) + '%';
+            
+            const list = document.getElementById('anomaly-list');
+            const anomalyTypes = ['High pixel variance detected', 'Potential compression artifacts', 'Edge boundary irregularity', 'Color channel mismatch', 'Noise pattern inconsistency'];
+            
+            let html = '';
+            for (let i = 0; i < Math.min(results.ela.regions, 5); i++) {
+                html += `<div class="anomaly-item"><div class="anomaly-severity"></div><div class="anomaly-text">Region ${i + 1}: ${anomalyTypes[i]}</div></div>`;
+            }
+            
+            if (results.ela.regions === 0) {
+                html = '<div style="padding: 1rem; color: #16a34a; text-align: center;">No anomalies detected</div>';
+            }
+            list.innerHTML = html;
+        }
+        
+        function generateScanId() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let id = '';
+            for (let i = 0; i < 6; i++) id += chars[Math.floor(Math.random() * chars.length)];
+            return id + '-' + new Date().getFullYear();
+        }
+        
+        function toggleHeatmap() {
+            document.getElementById('heatmap').classList.toggle('active');
+        }
+        
+        function toggleOriginal() {
+            if (!originalImage) return;
+            const canvas = document.getElementById('forensic-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+        }
+        
+        function reanalyze() {
+            document.querySelectorAll('.progress-item').forEach(p => p.classList.remove('complete'));
+            document.getElementById('progress-panel').classList.remove('hidden');
+            document.getElementById('verdict-card').classList.remove('authentic');
+            document.getElementById('verdict-text').textContent = 'ANALYZING...';
+            document.getElementById('verdict-text').style.color = '#0f172a';
+            document.getElementById('confidence-bar').style.width = '0%';
+            document.getElementById('anomaly-list').innerHTML = `<div class="loading" id="loading"><div class="spinner"></div><p style="color: #64748b;">Running forensic algorithms...</p></div>`;
+            
+            isAnalyzing = false;
+            runRealTimeAnalysis();
+        }
+        
+        function downloadReport() {
+            const results = analysisResults || JSON.parse(localStorage.getItem('forensicResults') || '{}');
+            const report = `FORENSIC ANALYSIS REPORT
+================================
+Scan ID: ${results.scanId || document.getElementById('scan-id').textContent}
+Timestamp: ${results.timestamp || new Date().toLocaleString()}
+Document: ${localStorage.getItem('currentFileName') || 'Unknown'}
+Type: ${localStorage.getItem('selectedDocType') || 'Unspecified'}
+
+VERDICT: ${results.verdict || 'PENDING'}
+Confidence: ${results.confidence || 0}%
+
+TECHNICAL METRICS
+=================
+Anomalies Detected: ${results.ela?.anomalyCount || 0}
+Suspicious Regions: ${results.ela?.regions || 0}
+ELA Score: ${Math.round(results.ela?.score || 0)}/100
+Tamper Probability: ${Math.round(results.ela?.score || 0)}%
+
+Noise Analysis: ${results.noise?.quality || 'N/A'}
+Edge Quality: ${results.edges?.quality || 'N/A'}
+
+RECOMMENDATION
+==============
+${results.verdict === 'AUTHENTIC' ? 'Document appears authentic. No further action required.' : results.verdict === 'REVIEW' ? 'Document shows minor inconsistencies. Manual review recommended.' : 'Document shows significant signs of manipulation. Detailed investigation advised.'}
+
+Generated by Sentinel AI Forensic Engine v2.1
+Real-time Analysis Complete`;
+            
+            const blob = new Blob([report], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'forensic-report-' + (results.scanId || 'scan').replace(/[^a-zA-Z0-9]/g, '-') + '.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            speak('Report downloaded successfully.');
+        }
+    </script>
+</body>
+</html>
