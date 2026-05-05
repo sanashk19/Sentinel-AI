@@ -1,0 +1,20 @@
+# Sentinel AI Neural Engine Dependencies
+opencv-python==4.8.1.78
+pytesseract==0.3.10
+tensorflow==2.13.0
+numpy==1.24.3
+matplotlib==3.7.2
+reportlab==4.0.4
+Pillow==10.0.0
+qrcode==7.4.2
+
+# Additional dependencies for advanced features
+scikit-image==0.21.0
+scipy==1.11.1
+
+# LLM Integration for Explainable AI
+google-generativeai>=0.3.0
+python-dotenv>=1.0.0
+
+# Florence Semantic Analysis (Roboflow)
+inference[transformers]>=0.9.0
