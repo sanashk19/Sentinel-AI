@@ -263,26 +263,6 @@ Use `sentinel_module/.env.example` and create `sentinel_module/.env` locally.
 
 ---
 
-## What to commit to GitHub
-
-Commit:
-
-- Source code: `api_server.py`, `forensic_engine.py`, `agents/`, `models/pretrained/`, `ml/*.py`, `sentinel_module/` (without secrets)
-- Frontend files: `*.html`, `script.js`, `style.css`
-- Docs: `README.md`, `RUN_INSTRUCTIONS.md`
-- Dependency files: `requirements.txt`
-- Download scripts: `download_models.py`, `download_pan_model.py`
-
-Do NOT commit (already in `.gitignore`):
-
-- `sentinel_env/`, `venv/`, `.venv/`
-- `.env` files and secrets (including `sentinel_module/.env`)
-- Datasets: `Dataset/`, `ml_data/`
-- Generated outputs: `outputs/`, reports, temp images
-- Large model weights (`*.pt`, `*.h5`) unless you intentionally use Git LFS
-
----
-
 ## Troubleshooting
 
 ### OCR not working
